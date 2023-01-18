@@ -1,7 +1,7 @@
 import express, {Request, Response} from 'express';
 import bodyParser from 'body-parser';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
-
+import mime from 'mime-types';
 (async () => {
 
   // Init the Express application
@@ -15,14 +15,26 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
 
   // @TODO1 IMPLEMENT A RESTFUL ENDPOINT
   app.get("/filteredimage", async (req: Request, res: Response) => {
-    let { image_url } = req.query.image_ur1.toString();
+    const image_url  = req.query.image_url.toString();
+    // console.log(req.query.image_url.toString(), "----")
     if (!image_url) {
       return res.status (400). send (' image_uri is required!' );
     }
-    const filteredImage = await filterImageFromURL(image_url);
-    res.status(200).sendFile(filteredImage, () => {
-      deleteLocalFiles([filteredImage])
-    })
+    const mimeType = mime.lookup(image_url);
+    if (mimeType === 'image/jpeg' || mimeType === 'image/png') {
+       const filteredImage = await filterImageFromURL(image_url);
+       if(!filteredImage){
+         return res.status(404).send("Image not found");
+       }
+      res.status(200).sendFile(filteredImage, { type: mimeType }, () => {
+          deleteLocalFiles([filteredImage])
+      });
+    }
+    else {
+        res.status(415).send(`Invalid image type: ${mimeType}. Only jpeg and png images are allowed.`);
+    }
+
+   
   });
   
 
