@@ -15,7 +15,7 @@ import mime from 'mime-types';
 
   // @TODO1 IMPLEMENT A RESTFUL ENDPOINT
   app.get("/filteredimage", async (req: Request, res: Response) => {
-    const image_url  = req.query.image_url.toString();
+    const image_url: string  = req.query.image_url.toString();
     // console.log(req.query.image_url.toString(), "----")
     if (!image_url) {
       return res.status (400). send (' image_uri is required!' );
